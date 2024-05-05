@@ -1,8 +1,26 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const swaggerUi = require('swagger-ui-express');
+const swaggerJsdoc = require('swagger-jsdoc');
 
 const app = express();
 app.use(bodyParser.json());
+
+// Swagger configuration
+const options = {
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'Library API',
+            version: '1.0.0',
+            description: 'A simple Express.js API for managing a library',
+        },
+    },
+    apis: ['./app.js'], // Path to the API files
+};
+
+const specs = swaggerJsdoc(options);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 // Mock Data
 const books = [
@@ -69,6 +87,31 @@ function findMemberByCode(memberCode) {
     return members.find(member => member.code === memberCode);
 }
 
+
+/**
+ * @openapi
+ * /borrow:
+ *   post:
+ *     summary: Borrow a book
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               memberCode:
+ *                 type: string
+ *               bookCode:
+ *                 type: string
+ *     responses:
+ *       '200':
+ *         description: Book borrowed successfully
+ *       '404':
+ *         description: Member or book not found
+ *       '400':
+ *         description: Member cannot borrow more than 2 books, book is out of stock, or member is penalized
+ */
 // Route to borrow a book
 app.post('/borrow', (req, res) => {
     const { memberCode, bookCode } = req.body;
@@ -101,6 +144,32 @@ app.post('/borrow', (req, res) => {
     return res.status(200).json({ message: 'Book borrowed successfully' });
 });
 
+/**
+ * @openapi
+ * /return:
+ *   post:
+ *     summary: Return a book
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               memberCode:
+ *                 type: string
+ *               bookCode:
+ *                 type: string
+ *               daysLate:
+ *                 type: integer
+ *     responses:
+ *       '200':
+ *         description: Book returned successfully
+ *       '404':
+ *         description: Member or book not found
+ *       '400':
+ *         description: Member has not borrowed this book or member is penalized
+ */
 // Route to return a book
 app.post('/return', (req, res) => {
     const { memberCode, bookCode, daysLate } = req.body;
@@ -132,12 +201,28 @@ app.post('/return', (req, res) => {
     return res.status(200).json({ message: 'Book returned successfully' });
 });
 
-// Route to check all books
+/**
+ * @openapi
+ * /books:
+ *   get:
+ *     summary: Get all books
+ *     responses:
+ *       '200':
+ *         description: A list of books
+ */
 app.get('/books', (req, res) => {
     return res.status(200).json(books);
 });
 
-// Route to check all members
+/**
+ * @openapi
+ * /members:
+ *   get:
+ *     summary: Get all members
+ *     responses:
+ *       '200':
+ *         description: A list of members
+ */
 app.get('/members', (req, res) => {
     return res.status(200).json(members);
 });
