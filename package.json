@@ -1,5 +1,22 @@
 {
   "dependencies": {
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.9.7",
+    "sequelize": "^6.37.3",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.24.5",
+    "@babel/register": "^7.23.7",
+    "chai": "^5.1.0",
+    "esm": "^3.2.25",
+    "jest": "^29.7.0",
+    "mocha": "^10.4.0",
+    "supertest": "^7.0.0"
+  },
+  "scripts": {
+    "test": "mocha -r esm --require @babel/register index.test.js"
   }
 }
